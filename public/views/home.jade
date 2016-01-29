@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1 Home Page
+  if user
+    p
+      | You are logged in as 
+      = user.username
+    a(href="/logout") Logout
+    br
+    a(href="/secret") Secret Page
+  else
+    p Please choose a login method
+    a(href="/login") Login
+    br
+    a(href="/register") Register

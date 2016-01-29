@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1 Login Page
+  if user
+    p You are already logged in
+    a(href='/logout') Logout
+  else
+    p Please enter your username and password
+    if error
+      p Invalid username or password, try again
+    br
+    form(action="/login",method="post", style="max-width: 300px;")
+      input(type="text", name="username", placeholder="Username")
+      input(type="password", name="password", placeholder="Password")
+      button(type='submit') Submit
+    a(href='/')
+      button(type="button") Cancel
