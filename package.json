@@ -1,34 +1,22 @@
 {
-  "name": "passport_1-25",
+  "name": "tokenAuth_1-29",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "gulp",
     "lint": "gulp lint"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wmharvey/passport.git"
+    "type": "git"
   },
   "author": "Whitney",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/wmharvey/passport/issues"
-  },
-  "homepage": "https://github.com/wmharvey/passport#readme",
   "dependencies": {
-    "body-parser": "^1.14.2",
-    "cookie-parser": "^1.4.1",
+    "authenticat": "^1.0.2",
     "express": "^4.13.4",
-    "express-session": "^1.13.0",
     "jade": "^1.11.0",
-    "mongoose": "^4.3.7",
-    "passport": "^0.3.2",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^4.0.0",
-    "passport-twitter": "^1.0.3",
-    "twitter": "^1.2.5"
+    "mongoose": "^4.3.7"
   },
   "devDependencies": {
     "chai": "^3.5.0",

@@ -3,17 +3,19 @@ var chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 var expect = chai.expect;
 var mongoose = require('mongoose');
-
-var User = require('../models/user')('Test');
-var app = require('../app')('Test');
-var agent = chai.request.agent(app);
+var app;
+var token;
 
 describe('clear db before testing', () => {
 
-  before('Remove previous users', done => {
-    mongoose.connect('mongodb://localhost/passport_demo');
+  before('Remove previous users', function(done) {
+    this.timeout(5000);
+    mongoose.connect('mongodb://whitney:abc@ds059672.mongolab.com:59672/codefellows');
     mongoose.connection.on('connected', () => {
-      mongoose.connection.collection('tests').drop( () => done() );
+      mongoose.connection.collection('users').drop( () => {
+        app = require('../app')(mongoose.connection);
+        done();
+      });
     });
   });
 
@@ -22,13 +24,12 @@ describe('clear db before testing', () => {
   });
 
   describe('protected routes', () => {
-    it('should redirect to home page', done => {
+    it('should protect the secret route', done => {
       chai.request(app)
       .get('/secret')
-      .redirects(0)
       .end( (err, res) => {
         expect(err).to.be.null;
-        expect(res).to.redirectTo('/');
+        expect(res.body.msg).to.equal('Invalid Authentication');
         done();
       });
     });
@@ -37,61 +38,39 @@ describe('clear db before testing', () => {
   describe('registering a new user', () => {
     it('should register a new user', function(done) {
       this.timeout(5000);
-      agent
-      .post('/register')
-      .redirects(0)
-      .send({ username: 'george', password: 'abc' })
-      .then( (res) => {
-        expect(res).to.redirectTo('/secret');
+      chai.request(app)
+      .post('/api/signup')
+      .send({ username: 'George', password: 'abc' })
+      .end( (err, res) => {
+        expect(err).to.be.null;
+        token = res.body.token;
         done();
-      })
-      .catch(done);
+      });
     });
 
     it('should allow access to secret route', done => {
-      agent
+      chai.request(app)
       .get('/secret')
-      .redirects(0)
-      .then( (res) => {
+      .set('token', token)
+      .end( (err, res) => {
+        expect(err).to.be.null;
         expect(res).to.have.status(200);
         done();
-      })
-      .catch(done);
+      });
     });
   });
 
-  describe('logging out', () => {
-
-    it('should log a user out', done => {
-      agent
-      .get('/logout')
-      .then( (res) => {
-        agent.get('/secret').redirects(0)
-          .then( res => {
-            expect(res).to.redirectTo('/');
-            done();
-          })
-          .catch(done);
-      })
-      .catch(done);
-    });
-
-  });
 
   describe('logging in as a registered user', () => {
-    it('should allow logins', done => {
-      agent
-      .post('/login')
-      .send({ username: 'george', password: 'abc' })
-      .then( res => {
-        agent.get('/secret').redirects(0)
-          .then( res => {
-            expect(res).to.have.status(200);
-            done();
-          })
-          .catch(done);
-      })
-      .catch(done);
+    it('should return a new token', done => {
+      chai.request(app)
+      .get('/api/signin')
+      .auth('George', 'abc')
+      .end( (err, res) => {
+        expect(err).to.be.null;
+        expect(res.body.token).to.not.equal(null);
+        done();
+      });
     });
   });
 
